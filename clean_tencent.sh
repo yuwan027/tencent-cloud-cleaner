@@ -513,7 +513,9 @@ verify() {
     echo ""
     echo "--- systemd 单元检查 ---"
     local unit_remain
-    unit_remain=$( { systemctl list-unit-files 2>/dev/null; systemctl list-units --all --no-pager 2>/dev/null; } \
+    # not-found 只是 systemd 内存中的历史单元元数据, 文件已删除, 不算磁盘残留
+    unit_remain=$( { systemctl list-unit-files 2>/dev/null; \
+        systemctl list-units --all --no-pager 2>/dev/null | grep -v 'not-found'; } \
         | grep -Ei 'qcloud|tencent|yunjing|barad|sgagent|tat_agent|cloud-init|nv_gpu' | sort -u)
     if [ -z "$unit_remain" ]; then
         log "systemd 单元干净 ✓"
